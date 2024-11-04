@@ -10,8 +10,8 @@ class Database {
 
   //connect
   connect() {
-    mongoose.set("debug", true);
-    mongoose.set("debug", { color: true });
+    // mongoose.set("debug", true);
+    // mongoose.set("debug", { color: true });
     mongoose
       .connect(connectString)
       .then(() => {

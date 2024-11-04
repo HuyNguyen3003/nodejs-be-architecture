@@ -1,0 +1,12 @@
+@url=http://localhost:5505/v1/api
+
+### signUP
+POST {{url}}/shop/signup
+Content-Type: application/json
+
+{
+    "name": "test",
+    "email": "admin@gmail.com",
+    "password":"admin123!@#"
+
+}
