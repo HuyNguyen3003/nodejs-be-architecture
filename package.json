@@ -16,8 +16,15 @@
   "license": "ISC",
   "dependencies": {
     "compression": "^1.7.5",
+    "detect-port": "^1.6.1",
     "express": "^4.21.1",
     "helmet": "^8.0.0",
+    "mongoose": "^8.8.0",
     "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "globals": "^15.11.0"
   }
 }

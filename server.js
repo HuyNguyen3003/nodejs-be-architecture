@@ -1,15 +1,28 @@
 const app = require("./src/app");
+const detect = require("detect-port");
+const process = require("process");
 
 const PORT = process.env.PORT || 5055;
 
-const server = app.listen(PORT, () => {
-  console.log("WSV eCommerce is running on port " + PORT);
-  console.log("http://localhost:" + PORT);
-});
+detect(PORT, (err, availablePort) => {
+  if (err) {
+    console.error("Error detecting port:", err);
+    return;
+  }
 
-process.on("SIGINT", () => {
-  server.close(() => {
-    console.log("WSV eCommerce is shutting down");
+  const server = app.listen(availablePort, (err) => {
+    if (err) {
+      console.error("Error starting server:", err);
+      return;
+    }
+    console.log("WSV eCommerce is running on port " + availablePort);
+    console.log("http://localhost:" + availablePort);
   });
-  // notify.ping
+
+  process.on("SIGINT", () => {
+    server.close(() => {
+      console.log("WSV eCommerce is shutting down");
+      process.exit(0);
+    });
+  });
 });
