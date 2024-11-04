@@ -1,8 +1,19 @@
 const app = require("./src/app");
 const detect = require("detect-port");
 const process = require("process");
+const { engines } = require("./package");
+const semver = require("semver");
+const config = require("./src/configs/config");
 
-const PORT = process.env.PORT || 5055;
+const PORT = config.app.port;
+
+const version = engines.node;
+if (!semver.satisfies(process.version, version)) {
+  console.log(
+    `Required node version ${version} not satisfied with current version ${process.version}.`
+  );
+  process.exit(1);
+}
 
 detect(PORT, (err, availablePort) => {
   if (err) {

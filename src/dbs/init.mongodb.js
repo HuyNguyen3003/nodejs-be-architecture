@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const config = require("../configs/config");
 
-const connectString = `mongodb://localhost:27017/eCommerce`;
+const connectString = config.mongo.connectString;
 
 class Database {
   constructor() {

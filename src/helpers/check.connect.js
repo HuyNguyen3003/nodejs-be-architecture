@@ -1,8 +1,9 @@
 const { default: mongoose } = require("mongoose");
 // const os = require("os");
 const process = require("process");
+const config = require("../configs/config");
 
-const _SECONDS = 5000;
+const _SECONDS = config.timeout._SECONDS;
 
 // const connect
 const countConnect = () => {
