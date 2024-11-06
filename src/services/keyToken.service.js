@@ -2,9 +2,9 @@ const { default: mongoose } = require("mongoose");
 const keyTokenModel = require("../models/keytoken.model");
 
 class KeyTokenService {
-  static async generateKeyToken({ userId, publicKey }) {
+  static async generateKeyToken({ userId, publicKeyString }) {
     try {
-      const publicKeyString = publicKey.toString();
+     
       const token = await keyTokenModel.create({
         publicKey: publicKeyString,
         user: new mongoose.Types.ObjectId(userId),

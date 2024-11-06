@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
+const { getIntoData } = require("../utils");
 
 const roleShop = {
   SHOP: "0010",
@@ -35,34 +36,61 @@ class AccessService {
         // create private key, public key
         const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
           modulusLength: 4096,
+          publicKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },  
         });
 
-        const publicKeyString = await KeyTokenService.generateKeyToken({
+       ;
+        const publicKeyString = publicKey.toString();
+       
+        const itemPublicKey = await KeyTokenService.generateKeyToken({
           userId: newShop._id,
-          publicKey,
+          publicKeyString,
         });
-        console.log("publicKeyString", publicKeyString);
-        if (!publicKeyString) {
+
+        if (!itemPublicKey) { 
           return {
             code: "500",
-            message: "Generate key token failed",
+            message: "Save public key failed",
             status: "error",
           };
         }
+
+      
+
+        const publicKeyObj = crypto.createPublicKey(itemPublicKey); 
+
+        if (!publicKeyObj) { 
+          return {
+            code: "500",
+            message: "Convert public key failed",
+            status: "error",
+          };
+        }
+
         // create token pair
         const tokenPair = await createTokenPair(
           {
             userId: newShop._id,
             email: newShop.email,
           },
-          publicKeyString,
+          publicKeyObj,
           privateKey
         );
-        console.log(tokenPair);
+       
         return {
           code: "2001",
           metadata: {
-            userId: newShop._id,
+            shop: getIntoData({
+              fileds: ["_id", "name", "email"],
+              object: newShop,
+            }),
             tokenPair,
           },
         };

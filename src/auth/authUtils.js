@@ -13,17 +13,9 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
       expiresIn: "7 days",
     });
 
-    jwt.verify(accessToken, publicKey, (err, decoded) => {
-      if (err) {
-        return {
-          code: "401",
-          message: "Unauthorized",
-          status: "error",
-        };
-      } else {
-        console.log(decoded);
-      }
-    });
+    const res = await jwt.verify(accessToken, publicKey) 
+    console.log(res)
+ 
 
     return {
       accessToken,
