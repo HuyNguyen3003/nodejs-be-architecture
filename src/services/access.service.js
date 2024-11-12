@@ -1,9 +1,10 @@
 const shopModel = require("../models/shop.model");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const KeyTokenService = require("./keyToken");
+const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
 const { getIntoData } = require("../utils");
+const { BadRequestError } = require("../core/error.response");
 
 const roleShop = {
   SHOP: "0010",
@@ -14,15 +15,11 @@ const roleShop = {
 
 class AccessService {
   static signUp = async ({ name, email, password }) => {
-    try {
+
       //step 1 : check email
       const holderShop = await shopModel.findOne({ email }).lean();
       if (holderShop) {
-        return {
-          code: "400",
-          message: "Email already exists",
-          status: "error",
-        };
+        throw new BadRequestError("Shop already exists");
       }
       //step 2 : create new shop
       const passwordHash = await bcrypt.hash(password, 10);
@@ -55,11 +52,7 @@ class AccessService {
         });
 
         if (!itemPublicKey) { 
-          return {
-            code: "500",
-            message: "Save public key failed",
-            status: "error",
-          };
+          throw new BadRequestError("Save public key failed");
         }
 
       
@@ -67,11 +60,8 @@ class AccessService {
         const publicKeyObj = crypto.createPublicKey(itemPublicKey); 
 
         if (!publicKeyObj) { 
-          return {
-            code: "500",
-            message: "Convert public key failed",
-            status: "error",
-          };
+          throw new BadRequestError("Convert public key failed");
+
         }
 
         // create token pair
@@ -88,25 +78,14 @@ class AccessService {
           code: "2001",
           metadata: {
             shop: getIntoData({
-              fileds: ["_id", "name", "email"],
+              field: ["_id", "name", "email"],
               object: newShop,
             }),
             tokenPair,
           },
         };
       }
-      return {
-        code: "500",
-        message: "Create shop failed",
-        status: "error",
-      };
-    } catch (error) {
-      return {
-        code: "502",
-        message: error.message,
-        status: "error",
-      };
-    }
+
   };
 }
 

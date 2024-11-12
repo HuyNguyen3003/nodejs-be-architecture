@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const accessController = require("../../controllers/access.controller");
+const {asyncHandel} = require("../../auth/checkAuth");
 
 /**
  * @swagger
@@ -49,6 +50,6 @@ const accessController = require("../../controllers/access.controller");
  *       500:
  *         description: Internal server error
  */
-router.post("/shop/signup", accessController.signUp);
+router.post("/shop/signup",asyncHandel( accessController.signUp));
 
 module.exports = router;
