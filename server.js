@@ -27,7 +27,7 @@ detect(PORT, (err, availablePort) => {
       return;
     }
     console.log("WSV eCommerce is running on port " + availablePort);
-    console.log("http://localhost:" + availablePort);
+    console.log("http://localhost:" + availablePort + "/api-docs");
   });
 
   process.on("SIGINT", () => {

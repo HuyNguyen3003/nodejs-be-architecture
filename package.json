@@ -20,6 +20,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "compression": "^1.7.5",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "detect-port": "^1.6.1",
     "express": "^4.21.1",
@@ -28,7 +29,9 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.8.0",
     "morgan": "^1.10.0",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
