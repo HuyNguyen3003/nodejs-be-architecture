@@ -4,7 +4,9 @@ const crypto = require("crypto");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
 const { getIntoData } = require("../utils");
-const { BadRequestError } = require("../core/error.response");
+const { BadRequestError, AuthFailError } = require("../core/error.response");
+const { OK } = require("../core/success.response");
+const { findByEmail } = require("./shop.service");
 
 const roleShop = {
   SHOP: "0010",
@@ -14,10 +16,60 @@ const roleShop = {
 };
 
 class AccessService {
+
+  static signIn = async ({ email, password,refreshtoken = null }) => {
+    const shop = await findByEmail({ email })
+    if(!shop){
+      throw new BadRequestError("Shop not found");
+    }
+
+    const match = bcrypt.compare(password, shop.password);
+    if(!match){
+      throw new AuthFailError('Authentication failed: 001');
+    }
+
+    const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+        modulusLength: 4096,
+        publicKeyEncoding: {
+          type: "pkcs1",
+          format: "pem",
+        },
+        privateKeyEncoding: {
+          type: "pkcs1",
+          format: "pem",
+        },  
+      });
+     
+      const tokenPair = await createTokenPair(
+      {
+        userId: shop._id,
+        email: shop.email,
+      },
+       privateKey
+      );
+
+    const itemPublicKey = await KeyTokenService.savePublicKey({
+      userId: shop._id,
+      publicKey,
+      privateKey,
+    });
+
+    if (!itemPublicKey) { 
+      throw new BadRequestError("Save public key failed");
+    }
+    
+    return{
+        tokenPair,
+        shop: getIntoData({fields: ["_id", "name", "email"], object: shop}),
+      }
+    
+      
+
+  };
   static signUp = async ({ name, email, password }) => {
 
       //step 1 : check email
-      const holderShop = await shopModel.findOne({ email }).lean();
+    const holderShop = await findByEmail({ email })
       if (holderShop) {
         throw new BadRequestError("Shop already exists");
       }
@@ -43,42 +95,32 @@ class AccessService {
           },  
         });
 
-       ;
-        const publicKeyString = publicKey.toString();
-       
-        const itemPublicKey = await KeyTokenService.generateKeyToken({
-          userId: newShop._id,
-          publicKeyString,
-        });
-
-        if (!itemPublicKey) { 
-          throw new BadRequestError("Save public key failed");
-        }
-
-      
-
-        const publicKeyObj = crypto.createPublicKey(itemPublicKey); 
-
-        if (!publicKeyObj) { 
-          throw new BadRequestError("Convert public key failed");
-
-        }
-
         // create token pair
         const tokenPair = await createTokenPair(
           {
             userId: newShop._id,
             email: newShop.email,
           },
-          publicKeyObj,
           privateKey
         );
+
+
+        const itemPublicKey = await KeyTokenService.savePublicKey({
+          userId: newShop._id,
+          publicKey, 
+          privateKey,
+          refreshToken: tokenPair.refreshToken,
+        });
+
+        if (!itemPublicKey) { 
+          throw new BadRequestError("Save public key failed");
+        }
        
         return {
-          code: "2001",
+          code: "200",
           metadata: {
             shop: getIntoData({
-              field: ["_id", "name", "email"],
+              fields: ["_id", "name", "email"],
               object: newShop,
             }),
             tokenPair,

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const createTokenPair = async (payload, publicKey, privateKey) => {
+const createTokenPair = async (payload, privateKey) => {
   try {
     // access token
     const accessToken = jwt.sign(payload, privateKey, {
@@ -13,9 +13,6 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
       expiresIn: "7 days",
     });
 
-    const res = await jwt.verify(accessToken, publicKey) 
-    console.log(res)
- 
 
     return {
       accessToken,
