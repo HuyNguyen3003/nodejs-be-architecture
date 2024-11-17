@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const accessController = require("../../controllers/access.controller");
-const {asyncHandel} = require("../../auth/checkAuth");
+const { asyncHandle } = require("../../helpers/asyncHandle");
+const { authentication } = require("../../auth/authUtils");
 
 /**
  * @swagger
@@ -50,7 +51,7 @@ const {asyncHandel} = require("../../auth/checkAuth");
  *       500:
  *         description: Internal server error
  */
-router.post("/shop/signup", asyncHandel(accessController.signUp));
+router.post("/shop/signup", asyncHandle(accessController.signUp));
 
 
 
@@ -97,6 +98,24 @@ router.post("/shop/signup", asyncHandel(accessController.signUp));
  *       500:
  *         description: Internal server error
  */
-router.post("/shop/login", asyncHandel(accessController.login));
+router.post("/shop/login", asyncHandle(accessController.login));
+
+
+
+router.use(authentication);
+
+// authentication
+/**
+ * @swagger
+ * /v1/api/shop/logout:
+ *   post:
+ *     summary: Logout 
+ *     tags: [Shop]
+ *     security:
+ *       - authorization: []
+ */
+router.post("/shop/logout", asyncHandle(accessController.logout));
+
+
 
 module.exports = router;

@@ -1,9 +1,9 @@
+const { default: mongoose } = require("mongoose");
 const keyTokenModel = require("../models/keytoken.model");
 
 class KeyTokenService {
   static async savePublicKey({ userId, publicKey,privateKey,refreshToken }) {
  // Add logging
- console.log('Creating key token for userId:', userId);
 
  const publicKeyString = publicKey.toString();
  const privateKeyString = privateKey.toString();
@@ -23,13 +23,22 @@ class KeyTokenService {
    throw new Error('Create key token failed');
  }
 
- console.log('Key token created successfully');
  return tokens.publicKey;
 
 } catch (error) {
- console.error('KeyToken Error::', error);
  throw new Error('Create key token failed: ' + error.message);
 }
+  
+  
+  static findByUserId = async({ userId }) => {
+    return  await keyTokenModel.findOne({ user: new mongoose.Types.ObjectId(userId) }).lean();
+  }
+  
+  static deletePublicKey = async( id ) => {
+    return await keyTokenModel.deleteOne(new mongoose.Types.ObjectId(id));
+  }
+
 }
 
 module.exports = KeyTokenService;
+ 
