@@ -53,13 +53,11 @@ const { authentication } = require("../../auth/authUtils");
  */
 router.post("/shop/signup", asyncHandle(accessController.signUp));
 
-
-
 /**
  * @swagger
  * /v1/api/shop/login:
  *   post:
- *     summary: Login 
+ *     summary: Login
  *     tags: [Shop]
  *     security:
  *       - ApiKeyAuth: []
@@ -100,22 +98,10 @@ router.post("/shop/signup", asyncHandle(accessController.signUp));
  */
 router.post("/shop/login", asyncHandle(accessController.login));
 
-
+router.post("/shop/refreshToken", asyncHandle(accessController.refreshToken));
 
 router.use(authentication);
 
-// authentication
-/**
- * @swagger
- * /v1/api/shop/logout:
- *   post:
- *     summary: Logout 
- *     tags: [Shop]
- *     security:
- *       - authorization: []
- */
 router.post("/shop/logout", asyncHandle(accessController.logout));
-
-
 
 module.exports = router;
