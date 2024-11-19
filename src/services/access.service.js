@@ -6,7 +6,6 @@ const { createTokenPair } = require("../auth/authUtils");
 const { getIntoData } = require("../utils");
 const { BadRequestError, AuthFailError } = require("../core/error.response");
 const { findByEmail } = require("./shop.service");
-const jwt = require("jsonwebtoken");
 
 const roleShop = {
   SHOP: "0010",
@@ -16,54 +15,32 @@ const roleShop = {
 };
 
 class AccessService {
-  static refreshToken = async (refreshToken) => {
-    console.log("1");
-    const foundKey = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
-    if (foundKey) {
-      const { userId, email } = jwt.verify(
-        foundKey.refreshToken,
-        foundKey.privateKey
-      );
-      await KeyTokenService.deletePublicKey(foundKey._id);
-      throw new BadRequestError("Something went wrong");
-    }
+  static refreshToken = async ({ keystore, user, refreshToken }) => {
+    const { userId, email } = user;
 
-    const token = await KeyTokenService.findByRefreshToken(refreshToken);
-    if (!token) {
-      throw new BadRequestError("Shop not found err1");
-    }
-
-    const { userId, email } = await jwt.verify(
-      token.refreshToken,
-      token.publicKey
-    );
-
-    const foundShop = await findByEmail({ email });
-    if (!foundShop) {
-      throw new BadRequestError("Shop not found err2");
+    if (keystore.refreshTokensUsed.includes(refreshToken)) {
+      await KeyTokenService.deletePublicKey(keystore._id);
+      throw new BadRequestError("Some thing went wrong, ple login again");
     }
 
     //create new token pair
 
     const tokenPair = await createTokenPair(
       {
-        userId: foundShop._id,
-        email: foundShop.email,
+        userId,
+        email,
       },
-      token.privateKey
+      keystore.privateKey
     );
 
-    await token.updateOne({
+    await keystore.updateOne({
       refreshToken: tokenPair.refreshToken,
       $push: { refreshTokensUsed: refreshToken },
     });
 
     return {
       tokenPair,
-      shop: getIntoData({
-        fields: ["_id", "name", "email"],
-        object: foundShop,
-      }),
+      shop: { user },
     };
   };
 

@@ -67,6 +67,7 @@ app.use((error, req, res, next) => {
     error: {
       message: error.message,
       code: status,
+      stack: error.stack,
       status: "error",
     },
   });
