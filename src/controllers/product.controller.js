@@ -2,13 +2,12 @@ const { CREATED } = require("../core/success.response");
 const ProductService = require("../services/product.service");
 class ProductController {
   CreateProduct = async (req, res, next) => {
-    console.log(req.body.product_type);
     return new CREATED({
       message: "Success",
-      metadata: await ProductService.createProduct(
-        req.body.product_type,
-        req.body
-      ),
+      metadata: await ProductService.createProduct(req.body.product_type, {
+        ...req.body,
+        product_shop: req.user.userId,
+      }),
     }).send(res);
   };
 }

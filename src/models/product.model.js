@@ -29,6 +29,7 @@ const clothingSchema = new mongoose.Schema(
     manufacture: { type: String, required: true },
     model: String,
     color: String,
+    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
   },
   {
     collation: "clothing",
@@ -42,6 +43,7 @@ const electronicSchema = new mongoose.Schema(
     brand: { type: String, required: true },
     size: String,
     material: String,
+    product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
   },
   {
     collation: "electronics",
