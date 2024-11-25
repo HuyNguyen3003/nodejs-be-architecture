@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const { Product, Clothing, Electronics } = require("../product.model");
-const { sort } = require("semver");
+const { getSelectData, unGetSelectData } = require("../../utils");
 
 const findAllDraftsForShop = async ({ query, limit = 50, skip = 0 }) => {
   return await queryProduct({ query, limit, skip });
@@ -58,10 +58,38 @@ const searchProduct = async ({ keyword }) => {
   return result;
 };
 
+const findAllProduct = async ({
+  sort = "ctime",
+  limit = 50,
+  page = 1,
+  filter,
+  select,
+}) => {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  const product = await Product.find(filter)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .lean()
+    .select(getSelectData(select));
+  return product;
+};
+
+const findProduct = async ({ product_id, unselect }) => {
+  const objectId = new mongoose.Types.ObjectId(product_id);
+
+  return await Product.findById(objectId)
+    .select(unGetSelectData(unselect))
+    .lean();
+};
+
 module.exports = {
   findAllDraftsForShop,
   publicProductByShop,
   findAllPublishForShop,
   unPublicProductByShop,
   searchProduct,
+  findAllProduct,
+  findProduct,
 };

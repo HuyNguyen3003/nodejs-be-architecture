@@ -52,8 +52,31 @@ class ProductController {
   SearchProductPublished = async (req, res, next) => {
     new SuccessResponse({
       message: "Search product",
-      metadata: await ProductService.searchProduct({
-        keyword: req.params.keyword,
+      metadata: await ProductService.searchProduct(req.params),
+    }).send(res);
+  };
+
+  findAllProduct = async (req, res, next) => {
+    const { select } = req.query;
+    const selectArray = select ? select.split(",") : null;
+
+    new SuccessResponse({
+      message: "Search product",
+      metadata: await ProductService.findAllProduct({
+        select: selectArray,
+      }),
+    }).send(res);
+  };
+
+  findProduct = async (req, res, next) => {
+    const { unselect } = req.query;
+    const selectArray = unselect ? unselect.split(",") : null;
+
+    new SuccessResponse({
+      message: "Search product",
+      metadata: await ProductService.findProductById({
+        unselect: selectArray,
+        product_id: req.params.product_id,
       }),
     }).send(res);
   };

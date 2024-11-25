@@ -8,6 +8,9 @@ router.get(
   "/search/:keyword",
   asyncHandle(ProductController.SearchProductPublished)
 );
+router.get("/:product_id", asyncHandle(ProductController.findProduct));
+
+router.get("", asyncHandle(ProductController.findAllProduct));
 
 router.use(authentication);
 
