@@ -1,8 +1,16 @@
+const { default: mongoose } = require("mongoose");
 const {
   Product,
   Clothing: ClothingModel,
   Electronics: ElectronicsModel,
 } = require("../models/product.model");
+const {
+  findAllDraftsForShop,
+  publicProductByShop,
+  findAllPublishForShop,
+  unPublicProductByShop,
+  searchProduct,
+} = require("../models/repositories/product.repo");
 
 class ProductFactory {
   static productRegistry = {};
@@ -15,6 +23,41 @@ class ProductFactory {
     if (!productClass) throw new Error("Invalid product type", type);
     return new productClass(payload).createProduct();
   };
+
+  static async findAllDraftsForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = {
+      product_shop,
+      is_Draft: true,
+    };
+    return await findAllDraftsForShop({
+      query,
+      limit,
+      skip,
+    });
+  }
+  static async findAllPublicForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = {
+      product_shop,
+      is_Published: true,
+    };
+    return await findAllPublishForShop({
+      query,
+      limit,
+      skip,
+    });
+  }
+
+  static async searchProduct({ keyword }) {
+    return await searchProduct({ keyword });
+  }
+
+  static async publicProductByShop({ product_shop, product_id }) {
+    return await publicProductByShop({ product_shop, product_id });
+  }
+
+  static async unPublicProductByShop({ product_shop, product_id }) {
+    return await unPublicProductByShop({ product_shop, product_id });
+  }
 }
 
 class BaseProduct {

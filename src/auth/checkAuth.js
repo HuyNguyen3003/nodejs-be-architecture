@@ -13,6 +13,7 @@ const apiKey = async (req, res, next) => {
         message: "Forbidden",
       });
     }
+
     const objKey = await fileById(key);
     if (!objKey) {
       return res.status(401).json({

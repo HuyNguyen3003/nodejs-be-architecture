@@ -1,8 +1,9 @@
+const slugify = require("slugify");
 const mongoose = require("mongoose"); // Erase if already required
 
 const DOCUMENT_NAME = "products"; // Model name
 const COLLECTION_NAME = "products";
-var shopSchema = new mongoose.Schema(
+var productSchema = new mongoose.Schema(
   {
     product_name: { type: String, required: true },
     product_thumbnail: { type: String, required: true },
@@ -16,12 +17,34 @@ var shopSchema = new mongoose.Schema(
     },
     product_shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
     product_attributes: { type: mongoose.Schema.Types.Mixed, required: true },
+    product_slug: String,
+    product_ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      min: [1, "Rating must be above 1.0"],
+      max: [5, "Rating must be below 5.0"],
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    product_variations: {
+      type: Array,
+      default: [],
+    },
+    is_Draft: { type: Boolean, default: true, index: true, select: false },
+    is_Published: { type: Boolean, default: false, index: true, select: false },
   },
   {
     timestamps: true,
     collection: COLLECTION_NAME,
   }
 );
+
+productSchema.index({ product_name: "text", product_description: "text" });
+
+//document middleware
+productSchema.pre("save", function (next) {
+  this.product_slug = slugify(this.product_name, { lower: true });
+  next();
+});
 
 //define the product type = clothing
 const clothingSchema = new mongoose.Schema(
@@ -53,7 +76,7 @@ const electronicSchema = new mongoose.Schema(
 
 //Export the model
 module.exports = {
-  Product: mongoose.model(DOCUMENT_NAME, shopSchema),
+  Product: mongoose.model(DOCUMENT_NAME, productSchema),
   Clothing: mongoose.model("Clothing", clothingSchema),
   Electronics: mongoose.model("Electronics", electronicSchema),
 };
