@@ -84,6 +84,21 @@ const findProduct = async ({ product_id, unselect }) => {
     .lean();
 };
 
+const updateProductById = async ({
+  product_id,
+  payload,
+  model,
+  isNew = true,
+}) => {
+  return await model.findOneAndUpdate(
+    new mongoose.Types.ObjectId(product_id),
+    payload,
+    {
+      new: isNew,
+    }
+  );
+};
+
 module.exports = {
   findAllDraftsForShop,
   publicProductByShop,
@@ -92,4 +107,5 @@ module.exports = {
   searchProduct,
   findAllProduct,
   findProduct,
+  updateProductById,
 };

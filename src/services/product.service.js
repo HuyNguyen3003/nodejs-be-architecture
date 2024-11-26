@@ -11,8 +11,11 @@ const {
   unPublicProductByShop,
   searchProduct,
   findAllProduct,
+  updateProductById,
   findProduct,
 } = require("../models/repositories/product.repo");
+
+const { removeUndefined, updateNestedObjParser } = require("../utils/index");
 
 class ProductFactory {
   static productRegistry = {};
@@ -24,6 +27,12 @@ class ProductFactory {
     const productClass = ProductFactory.productRegistry[type];
     if (!productClass) throw new Error("Invalid product type", type);
     return new productClass(payload).createProduct();
+  };
+
+  static updateProductById = async (type, product_id, payload) => {
+    const productClass = ProductFactory.productRegistry[type];
+    if (!productClass) throw new Error("Invalid product type", type);
+    return new productClass(payload).updateProduct(product_id);
   };
 
   static async findAllDraftsForShop({ product_shop, limit = 50, skip = 0 }) {
@@ -83,10 +92,6 @@ class ProductFactory {
     const result = await findProduct({ product_id, unselect });
     return result;
   }
-
-  static async updateProduct({ keyword }) {
-    return await searchProduct({ keyword });
-  }
 }
 
 class BaseProduct {
@@ -113,6 +118,9 @@ class BaseProduct {
   async createProduct(product_id) {
     return await Product.create({ ...this, _id: product_id });
   }
+  async updateProduct(product_id, payload) {
+    return await updateProductById({ product_id, payload, model: Product });
+  }
 }
 
 class Clothing extends BaseProduct {
@@ -126,6 +134,26 @@ class Clothing extends BaseProduct {
     if (!newProduct) throw new Error("Product not created");
     return newProduct;
   }
+
+  async updateProduct(product_id) {
+    // 1  remove atrr has null or undefined
+    const obj = removeUndefined(this);
+    // 2  check if product_attributes is not empty
+    if (obj.product_attributes) {
+      //update the product_attributes - update child model
+      await updateProductById({
+        product_id,
+        payload: obj.product_attributes,
+        model: ClothingModel,
+      });
+    }
+
+    const updatedClothing = super.updateProduct(
+      product_id,
+      updateNestedObjParser(obj)
+    );
+    return updatedClothing;
+  }
 }
 
 class Electronics extends BaseProduct {
@@ -138,6 +166,26 @@ class Electronics extends BaseProduct {
     const newProduct = await super.createProduct(newElectronics._id);
     if (!newProduct) throw new Error("Electronic not created");
     return newProduct;
+  }
+
+  async updateProduct(product_id) {
+    // 1  remove atrr has null or undefined
+    const obj = removeUndefined(this);
+    // 2  check if product_attributes is not empty
+    if (obj.product_attributes) {
+      //update the product_attributes - update child model
+      await updateProductById({
+        product_id,
+        payload: obj.product_attributes,
+        model: ElectronicsModel,
+      });
+    }
+
+    const updatedClothing = super.updateProduct(
+      product_id,
+      updateNestedObjParser(obj)
+    );
+    return updatedClothing;
   }
 }
 

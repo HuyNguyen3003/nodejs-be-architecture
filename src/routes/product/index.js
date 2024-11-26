@@ -22,6 +22,8 @@ router.post(
   asyncHandle(ProductController.unPublishedForShop)
 );
 
+router.patch("/:productId", asyncHandle(ProductController.UpdateProduct));
+
 // query
 
 router.get("/drafts/all", asyncHandle(ProductController.getAllDraftForShop));
